@@ -1,5 +1,6 @@
 from scipy import optimize
 import numpy as np
+#github
 
 r = np.array([[0.1],[0.2],[-0.05],[0.5]]) #array of predicted returns, transformed with Black Lit
 init = np.array([-0.3,0.4,0.3,0.2]) #initial solution (portfolio weights)
