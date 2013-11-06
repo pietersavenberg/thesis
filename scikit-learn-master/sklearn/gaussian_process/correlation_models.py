@@ -53,12 +53,15 @@ def absolute_exponential(theta, d):
     else:
         return np.exp(- np.sum(theta.reshape(1, n_features) * d, axis=1))
 
-def non_stationary(theta,d):
+def non_stationary(theta,crossd,multiplyd):
     theta = np.asarray(theta, dtype=np.float)
-    d = np.asarray(d, dtype=np.float)
+    crossd = np.asarray(crossd, dtype=np.float)
+    multiplyd = np.asarray(multiplyd, dtype=np.float)
 
-    if d.ndim > 1:
-        n_features = d.shape[1]
+    if crossd.shape != multiplyd.shape:
+        raise ValueError("cross en multiply moeten zelfde dimensies hebben")
+    if crossd.ndim > 1:
+        n_features = crossd.shape[1]
     else:
         n_features = 1
 
@@ -72,10 +75,10 @@ def non_stationary(theta,d):
         sigmaf=theta[(2*n_features+1)]
         
         
-        return w0+ np.sum( (d/v0.reshape(1, n_features)) ** 2, axis=1) + sigmaf*np.exp(-0.5*np.sum( (d/l0.reshape(1, n_features)) ** 2, axis=1))
+        return w0+ np.sum( 1/(v0.reshape(1, n_features))**2 * multiplyd, axis=1) + sigmaf*np.exp(-0.5*np.sum( 1/(l0.reshape(1, n_features))*2 * crossd**2, axis=1))
         
 
-def squared_exponential(theta, d):
+def squared_exponential(theta, d,multiplyd):
     """
     Squared exponential correlation model (Radial Basis Function).
     (Infinitely differentiable stochastic process, very smooth)::
@@ -115,7 +118,7 @@ def squared_exponential(theta, d):
     elif theta.size != n_features:
         raise ValueError("Length of theta must be 1 or %s" % n_features)
     else:
-        return np.exp(-np.sum(theta.reshape(1, n_features) * d ** 2, axis=1))
+        return np.exp(-np.sum(1/(theta.reshape(1, n_features))**2 * d ** 2, axis=1))
         
 
 

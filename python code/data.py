@@ -11,6 +11,24 @@ freq = "monthly"
 #ik moet telkens het laatste object van de array verwijderen aangezien Quandl niet overweg kan met een eindmaand van November.
 BEL = np.delete(np.array(Quandl.get("YAHOO/INDEX_BFX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
 PX = np.delete(np.array(Quandl.get("PRAGUESE/PX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Index"]),132)
+y = np.vstack((BEL,PX))
+y = np.vstack((y,np.delete(np.array(Quandl.get("NASOMXNORDIC/FI0008900212",collapse= freq,trim_start = start, trim_end= end,transformation = "rdiff")["Closing Price"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_FCHI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_GDAXI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("BUDAPESTSE/BUX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_FTSEMIB_MI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_IBEX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("NASOMXNORDIC/SE0000337842",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Closing Price"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_SSMI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_FTSE",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("PFTS/INDEX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Index"]),132)))
+y = np.vstack((y,np.delete(np.array(Quandl.get("YAHOO/INDEX_AEX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)))
+
+y=y.T
+print y.shape
+'''
+BEL = np.delete(np.array(Quandl.get("YAHOO/INDEX_BFX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
+PX = np.delete(np.array(Quandl.get("PRAGUESE/PX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Index"]),132)
 FIN = np.delete(np.array(Quandl.get("NASOMXNORDIC/FI0008900212",collapse= freq,trim_start = start, trim_end= end,transformation = "rdiff")["Closing Price"]),132)
 CAC = np.delete(np.array(Quandl.get("YAHOO/INDEX_FCHI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
 DAX = np.delete(np.array(Quandl.get("YAHOO/INDEX_GDAXI",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
@@ -22,9 +40,11 @@ SMI = np.delete(np.array(Quandl.get("YAHOO/INDEX_SSMI",collapse=freq,trim_start 
 UK = np.delete(np.array(Quandl.get("YAHOO/INDEX_FTSE",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
 UKR = np.delete(np.array(Quandl.get("PFTS/INDEX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Index"]),132)
 AEX = np.delete(np.array(Quandl.get("YAHOO/INDEX_AEX",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"]),132)
-
+'''
 #determinants, de basisset voor voorspellingen
 
+
+'''
 #technische determinanten:
 start = "November 2001"
 end = "November 2012"
@@ -47,7 +67,7 @@ SP500 = np.array(Quandl.get("YAHOO/INDEX_GSPC",collapse=freq,trim_start = start,
 Nik = np.array(Quandl.get("YAHOO/INDEX_N225",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Close"])
 DJIA = np.array(Quandl.get("BCB/UDJIAD1",collapse=freq,trim_start = start, trim_end= end,transformation = "rdiff")["Value"])
 
-
+'''
 #fundamentele determinanten
 st = "December 2001"
 en = "November 2012"
@@ -92,8 +112,12 @@ cpismi = jaarlijks(np.array(Quandl.get("WORLDBANK/CHE_CPTOTSAXNZGY",collapse=fre
 cpiuk = jaarlijks(np.array(Quandl.get("WORLDBANK/GBR_CPTOTSAXNZGY",collapse=freq,trim_start = st, trim_end= en,transformation = "none")["Value"]))
 cpiukr = jaarlijks(np.array(Quandl.get("WORLDBANK/UKR_CPTOTSAXNZGY",collapse=freq,trim_start = st, trim_end= en,transformation = "none")["Value"]))
 cpiaex = jaarlijks(np.array(Quandl.get("WORLDBANK/NLD_CPTOTSAXNZGY",collapse=freq,trim_start = st, trim_end= en,transformation = "none")["Value"]))
-#transformation rdiff weglaten?
+cpinat = np.vstack((cpibel,cpipx,cpifin,cpicac,cpidax,cpibux,cpiita,cpiibex,cpiswe,cpismi,cpiuk,cpiukr,cpiaex))
 
+X = np.vstack((cpi,defl,cpinat))
+print X.shape
+
+'''
 #industrial production per country
 indbel = jaarlijks(np.array(Quandl.get("WORLDBANK/BEL_IPTOTSAKD",collapse=freq,trim_start = st, trim_end= en,transformation = "rdiff")["Value"]))
 indpx = jaarlijks(np.array(Quandl.get("WORLDBANK/CZE_IPTOTSAKD",collapse=freq,trim_start = st, trim_end= en,transformation = "rdiff")["Value"]))
@@ -253,3 +277,4 @@ bill2y = np.array(Quandl.get("USTREASURY/YIELD",collapse=freq,trim_start = st, t
 bill10y = np.array(Quandl.get("USTREASURY/YIELD",collapse=freq,trim_start = st, trim_end= en)["10 Yr"])
 billdif = bill10y-bill2y
 
+'''

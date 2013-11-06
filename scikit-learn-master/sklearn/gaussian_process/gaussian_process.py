@@ -10,7 +10,7 @@ import numpy as np
 from scipy import linalg, optimize, rand
 
 from ..base import BaseEstimator, RegressorMixin
-from ..metrics.pairwise import manhattan_distances
+from ..metrics.pairwise import manhattan_distances,manhattan_multiply
 from ..utils import array2d, check_random_state, check_arrays
 from . import regression_models as regression
 from . import correlation_models as correlation
@@ -61,6 +61,41 @@ def l1_cross_distances(X):
 
     return D, ij.astype(np.int)
 
+def l1_multiply(X):
+    """
+    Computes the nonzero componentwise L1 cross-distances between the vectors
+    in X.
+
+    Parameters
+    ----------
+
+    X: array_like
+        An array with shape (n_samples, n_features)
+
+    Returns
+    -------
+
+    D: array with shape (n_samples * (n_samples - 1) / 2, n_features)
+        The array of componentwise L1 cross-distances.
+
+    ij: arrays with shape (n_samples * (n_samples - 1) / 2, 2)
+        The indices i and j of the vectors in X associated to the cross-
+        distances in D: D[k] = np.abs(X[ij[k, 0]] - Y[ij[k, 1]]).
+    """
+    X = array2d(X)
+    n_samples, n_features = X.shape
+    n_nonzero_cross_dist = n_samples * (n_samples - 1) / 2
+    ij = np.zeros((n_nonzero_cross_dist, 2), dtype=np.int)
+    D = np.zeros((n_nonzero_cross_dist, n_features))
+    ll_1 = 0
+    for k in range(n_samples - 1):
+        ll_0 = ll_1
+        ll_1 = ll_0 + n_samples - k - 1
+        ij[ll_0:ll_1, 0] = k
+        ij[ll_0:ll_1, 1] = np.arange(k + 1, n_samples)
+        D[ll_0:ll_1] = np.abs(X[k] * X[(k + 1):n_samples])
+
+    return D, ij.astype(np.int)
 
 class GaussianProcess(BaseEstimator, RegressorMixin):
     """The Gaussian Process model class.
@@ -231,7 +266,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                  #vL = None, vU = None, sigmaf =1e-1, sigmaL = None,sigmaU = None,
                  optimizer='fmin_cobyla',
                  random_start=1, normalize=True,
-                 nugget=10. * MACHINE_EPSILON, random_state=None):
+                 nugget=100. * MACHINE_EPSILON, random_state=None):
         self.regr = regr
         self.corr = corr
         self.beta0 = beta0
@@ -322,6 +357,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
         # Calculate matrix of distances D between samples
         D, ij = l1_cross_distances(X)
+        multiplyD,ij = l1_multiply(X)
         if (np.min(np.sum(D, axis=1)) == 0.
                 and self.corr != correlation.pure_nugget):
             raise Exception("Multiple input features cannot have the same"
@@ -350,6 +386,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         self.X = X
         self.y = y
         self.D = D
+        self.multiplyD = multiplyD
         self.ij = ij
         self.F = F
         self.X_mean, self.X_std = X_mean, X_std
@@ -377,7 +414,9 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                 self.reduced_likelihood_function()
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
-
+                
+                
+                '''
         self.beta = par['beta']
         self.gamma = par['gamma']
         self.sigma2 = par['sigma2']
@@ -397,7 +436,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             self.C = None
             self.Ft = None
             self.G = None
-
+'''
         return self
 
     def predict(self, X, eval_MSE=False, batch_size=None):
@@ -464,9 +503,22 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
             # Get pairwise componentwise L1-distances to the input training set
             dx = manhattan_distances(X, Y=self.X, sum_over_features=False)
+            multidx = manhattan_multiply(X, Y=self.X,  sum_over_features=False)
+            '''
+            yolo = np.zeros(n_samples)
+            for i in range(x.size):
+                
+                dx = manhattan_distances(self.X, x[i], sum_over_features=False)
+                multidx = manhattan_multiply(self.X, x[i], sum_over_features=False)
+                r = self.corr(self.theta_, dx,multidx)
+                yolo = np.vstack((yolo,r))
+            
+            yolo = yolo[1:]   ''' 
             # Get regression function and correlation
             f = self.regr(X)
-            r = self.corr(self.theta_, dx).reshape(n_eval, n_samples)
+            r = self.corr(self.theta_, dx,multidx)
+
+            
 
             # Scaled predictor
             y_ = np.dot(f, self.beta) + np.dot(r, self.gamma)
@@ -474,6 +526,9 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
             # Predictor
             y = (self.y_mean + self.y_std * y_).reshape(n_eval, n_targets)
+
+
+            #y = np.dot(np.dot(yolo,linalg.inv(self.K)),self.y)
 
             if self.y_ndim_ == 1:
                 y = y.ravel()
@@ -597,8 +652,8 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
         if theta is None:
             # Use built-in autocorrelation parameters
-            theta = self.theta0
-        theta = self.theta_
+            theta = self.theta_
+            
         # Initialize output
         reduced_likelihood_function_value = - np.inf
         par = {}
@@ -606,27 +661,35 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         # Retrieve data
         n_samples = self.X.shape[0]
         D = self.D
+        multiplyD = self.multiplyD
         ij = self.ij
         F = self.F
 
-        if D is None:
+        if D is None or multiplyD is None:
             # Light storage mode (need to recompute D, ij and F)
             D, ij = l1_cross_distances(self.X)
+            multiplyD,ij = l1_multiply(self.X)
             if (np.min(np.sum(D, axis=1)) == 0.
                     and self.corr != correlation.pure_nugget):
                 raise Exception("Multiple X are not allowed")
             F = self.regr(self.X)
 
-        # Set up R
-        r = self.corr(theta, D)
+        # Set up R: dit is de Gram matrix K
+        r = self.corr(theta, D,multiplyD)
         R = np.eye(n_samples) * (1. + self.nugget)
         R[ij[:, 0], ij[:, 1]] = r
         R[ij[:, 1], ij[:, 0]] = r
-
-        # Cholesky decomposition of R
+        #print(K)
+        # Cholesky decomposition of R, moet positief definitef zijn hiervoor!
+        '''
+        loglik = -0.5*(np.dot(np.dot(((self.y).T),linalg.inv(K)),self.y))- 0.5*np.log(linalg.det(K))-0.5*n_samples*np.log(6.18)
+        print(K)
+        
+        '''
         try:
             C = linalg.cholesky(R, lower=True)
         except linalg.LinAlgError:
+            print("er is een linalgerror", reduced_likelihood_function_value)
             return reduced_likelihood_function_value, par
 
         # Get generalized least squares solution
@@ -676,8 +739,12 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         par['C'] = C
         par['Ft'] = Ft
         par['G'] = G
+     
 
-        return reduced_likelihood_function_value, par
+        
+        
+        #return reduced_likelihood_function_value, par
+        return reduced_likelihood_function_value,par
 
     def _arg_max_reduced_likelihood_function(self):
         """
@@ -728,10 +795,9 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             constraints = []
             for i in range(self.theta0.size):
                 constraints.append(lambda log10t:
-                                   log10t[i] - np.log10(self.thetaL[0, i]))
+                                   log10t[i] - np.log10(self.thetaL[i]))
                 constraints.append(lambda log10t:
-                                   np.log10(self.thetaU[0, i]) - log10t[i])
-
+                                   np.log10(self.thetaU[i]) - log10t[i])
             for k in range(self.random_start):
 
                 if k == 0:
@@ -744,8 +810,9 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                         + rand(self.theta0.size).reshape(self.theta0.shape) \
                         * np.log10(self.thetaU / self.thetaL)
                     theta0 = 10. ** log10theta0
+                
 
-                # Run Cobyla
+                # Run Cobyla, omdat cobyla alleen kan minimalizeren, moeten we minus de red likelihood als objective nemen
                 try:
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
@@ -867,12 +934,12 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                              "'light', %s was given." % self.storage_mode)
 
         # Check correlation parameters
-        self.theta0 = array2d(self.theta0)
+        #self.theta0 = array2d(self.theta0)
         lth = self.theta0.size
 
         if self.thetaL is not None and self.thetaU is not None:
-            self.thetaL = array2d(self.thetaL)
-            self.thetaU = array2d(self.thetaU)
+            #self.thetaL = array2d(self.thetaL)
+            #self.thetaU = array2d(self.thetaU)
             if self.thetaL.size != lth or self.thetaU.size != lth:
                 raise ValueError("theta0, thetaL and thetaU must have the "
                                  "same length.")

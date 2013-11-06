@@ -14,12 +14,16 @@ X = np.atleast_2d([1., 3., 5., 6., 7., 8.]).T
 # Observations
 y = f(X).ravel()
 
-# Mesh the input space for evaluations of the real function, the prediction and
-# its MSE
+# Mesh the input space for evaluations of the real function, the prediction and its MSE
 x = np.atleast_2d(np.linspace(0, 10, 1000)).T
 
+
 # Instanciate a Gaussian Process model
-gp = GaussianProcess(corr='non_stationary',theta0 = np.array([1,1,1,1]),random_start=10)
+#,thetaL = np.array([1e-4,1e-4,1e-4,1e-4]),thetaU = np.array([1,1,1,1])
+#gp = GaussianProcess(corr='non_stationary',theta0 = np.array([0.5,0.5,0.5,0.5]),thetaL = np.array([1e-1,1e-1,1e-1,1e-1]),
+#thetaU = np.array([2,2,2,2]),random_start=2)
+gp = GaussianProcess(corr='squared_exponential',theta0 = np.array([1e-1]),thetaL = np.array([1e-4]),thetaU = np.array([1]),random_start=10)
+
 '''class sklearn.gaussian_process.GaussianProcess(regr='constant', corr='squared_exponential', 
 beta0=None, storage_mode='full', verbose=False, theta0=0.1, thetaL=None, thetaU=None, 
 optimizer='fmin_cobyla', random_start=1, normalize=True, nugget=2.2204460492503131e-15, random_state=None)
@@ -30,9 +34,11 @@ http://scikit-learn.org/0.13/modules/generated/sklearn.gaussian_process.Gaussian
 gp.fit(X, y)
 
 # Make the prediction on the meshed x-axis (ask for MSE as well)
-a,b,c,d = gp.predict(x, eval_MSE=True)
-print d
+y= gp.predict(x)
+#print y
 #sigma = np.sqrt(MSE)
+
+
 
 '''
 # Plot the function, the prediction and the 95% confidence interval based on
@@ -49,11 +55,7 @@ pl.xlabel('$x$')
 pl.ylabel('$f(x)$')
 pl.ylim(-10, 20)
 pl.legend(loc='upper left')
-'''
 
-
-
-'''
 #----------------------------------------------------------------------
 # now the noisy case
 X = np.linspace(0.1, 9.9, 20)
