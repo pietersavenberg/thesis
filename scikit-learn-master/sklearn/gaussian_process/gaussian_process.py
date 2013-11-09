@@ -261,9 +261,6 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         'Welch']
     def __init__(self,regr='constant', corr='squared_exponential', beta0 = None,
                  storage_mode='full', verbose=True, theta0 = 1e-1, thetaL = None, thetaU = None,
-                 #l0=1e-1,
-                 #lL=None, lU=None,w0=None,wL=None , wU = None, v0=None, 
-                 #vL = None, vU = None, sigmaf =1e-1, sigmaL = None,sigmaU = None,
                  optimizer='fmin_cobyla',
                  random_start=1, normalize=True,
                  nugget=100. * MACHINE_EPSILON, random_state=None):
@@ -275,23 +272,6 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         self.theta0 = theta0
         self.thetaL = thetaL
         self.thetaU = thetaU
-        '''
-        self.l0 = l0
-        self.lL = lL
-        self.lU = lU
-        self.theta0 = np.hstack([w0,v0,l0,sigmaf])
-        self.thetaL = np.hstack([wL,vL,lL,sigmaL])
-        self.thetaU = np.hstack([wU,vU,lU,sigmaU])
-        self.w0 = w0
-        self.wL = wL
-        self.wU = wU
-        self.v0 = v0
-        self.vL = vL
-        self.vU = vU
-        self.sigmaf = sigmaf
-        self.sigmaL = sigmaL
-        self.sigmaU = sigmaU
-        '''
         self.normalize = normalize
         self.nugget = nugget
         self.optimizer = optimizer
@@ -416,7 +396,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                 raise Exception("Bad point. Try increasing theta0.")
                 
                 
-                '''
+            
         self.beta = par['beta']
         self.gamma = par['gamma']
         self.sigma2 = par['sigma2']
@@ -436,7 +416,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             self.C = None
             self.Ft = None
             self.G = None
-'''
+
         return self
 
     def predict(self, X, eval_MSE=False, batch_size=None):
@@ -516,7 +496,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             yolo = yolo[1:]   ''' 
             # Get regression function and correlation
             f = self.regr(X)
-            r = self.corr(self.theta_, dx,multidx)
+            r = self.corr(self.theta_, dx,multidx).reshape(n_eval,n_samples)
 
             
 
