@@ -20,9 +20,9 @@ x = np.atleast_2d(np.linspace(0, 10, 1000)).T
 
 # Instanciate a Gaussian Process model
 #,thetaL = np.array([1e-4,1e-4,1e-4,1e-4]),thetaU = np.array([1,1,1,1])
-#gp = GaussianProcess(corr='non_stationary',theta0 = np.array([0.5,0.5,0.5,0.5]),thetaL = np.array([1e-1,1e-1,1e-1,1e-1]),
-#thetaU = np.array([2,2,2,2]),random_start=2)
-gp = GaussianProcess(corr='squared_exponential',theta0 = np.array([1e-1]),thetaL = np.array([1e-4]),thetaU = np.array([1]),random_start=10)
+gp = GaussianProcess(corr='non_stationary',theta0 = np.array([0.5,0.5,0.5,0.5]),thetaL = np.array([1e-1,1e-1,1e-1,1e-1]),
+thetaU = np.array([2,2,2,2]),random_start=2)
+#gp = GaussianProcess(corr='squared_exponential',theta0 = np.array([1e-1]),thetaL = np.array([1e-4]),thetaU = np.array([1]),random_start=10)
 
 '''class sklearn.gaussian_process.GaussianProcess(regr='constant', corr='squared_exponential', 
 beta0=None, storage_mode='full', verbose=False, theta0=0.1, thetaL=None, thetaU=None, 
