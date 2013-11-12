@@ -57,14 +57,12 @@ def non_stationary(theta,crossd,multiplyd):
     theta = np.asarray(theta, dtype=np.float)
     crossd = np.asarray(crossd, dtype=np.float)
     multiplyd = np.asarray(multiplyd, dtype=np.float)
-
     if crossd.shape != multiplyd.shape:
         raise ValueError("cross en multiply moeten zelfde dimensies hebben")
     if crossd.ndim > 1:
         n_features = crossd.shape[1]
     else:
         n_features = 1
-
 
     if theta.size != (2*n_features+2):
         raise ValueError("Length of theta must be 1 or %s" % (2*n_features+2))
@@ -73,9 +71,7 @@ def non_stationary(theta,crossd,multiplyd):
         v0=theta[1:(n_features+1)]
         l0=theta[(n_features+1):(2*n_features+1)]
         sigmaf=theta[(2*n_features+1)]
-        
-        
-        return w0+ np.sum( 1/(v0.reshape(1, n_features))**2 * multiplyd, axis=1) + sigmaf*np.exp(-0.5*np.sum( 1/(l0.reshape(1, n_features))*2 * crossd**2, axis=1))
+        return w0+ np.sum( 1/(v0.reshape(1, n_features))**2 * multiplyd, axis=1) + sigmaf*np.exp(-0.5*np.sum( 1/(l0.reshape(1, n_features))**2 * crossd**2, axis=1))
         
 
 def squared_exponential(theta, d,multiplyd):

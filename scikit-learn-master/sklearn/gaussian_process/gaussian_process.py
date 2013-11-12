@@ -93,7 +93,7 @@ def l1_multiply(X):
         ll_1 = ll_0 + n_samples - k - 1
         ij[ll_0:ll_1, 0] = k
         ij[ll_0:ll_1, 1] = np.arange(k + 1, n_samples)
-        D[ll_0:ll_1] = np.abs(X[k] * X[(k + 1):n_samples])
+        D[ll_0:ll_1] = (X[k] * X[(k + 1):n_samples])
 
     return D, ij.astype(np.int)
 
@@ -639,7 +639,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         par = {}
 
         # Retrieve data
-        n_samples = self.X.shape[0]
+        n_samples,n_features = self.X.shape
         D = self.D
         multiplyD = self.multiplyD
         ij = self.ij
@@ -655,17 +655,27 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             F = self.regr(self.X)
 
         # Set up R: dit is de Gram matrix K
+        #print("theta berekend is",theta)
         r = self.corr(theta, D,multiplyD)
         R = np.eye(n_samples) * (1. + self.nugget)
         R[ij[:, 0], ij[:, 1]] = r
         R[ij[:, 1], ij[:, 0]] = r
-        #print(K)
-        # Cholesky decomposition of R, moet positief definitef zijn hiervoor!
+        #if self.corr == 'non_stationary':
+         #   print("deze shit moet uitgevoerd worden")
+        for i in range(n_samples):
+            som = 0.
+            for j in range(n_features):
+                som += self.X[i,j]**2 / (theta[1+j]**2)
+            R[i,i] += theta[0] + som +theta[2*n_features +1] - 1
+        
+        print(R)
+        print("eigenwaarden,",linalg.eig(R)[0])
         '''
         loglik = -0.5*(np.dot(np.dot(((self.y).T),linalg.inv(K)),self.y))- 0.5*np.log(linalg.det(K))-0.5*n_samples*np.log(6.18)
         print(K)
         
         '''
+        # Cholesky decomposition of R, moet positief definitef zijn hiervoor!
         try:
             C = linalg.cholesky(R, lower=True)
         except linalg.LinAlgError:
@@ -679,7 +689,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         except:
             #/usr/lib/python2.6/dist-packages/scipy/linalg/decomp.py:1177:
             # DeprecationWarning: qr econ argument will be removed after scipy
-            # 0.7. The economy transform will then be available through the
+            # 0.7. The econy transform will then be available through the
             # mode='economic' argument.
             Q, G = linalg.qr(Ft, mode='economic')
             pass
@@ -724,6 +734,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         
         
         #return reduced_likelihood_function_value, par
+        print ("de red lik waarde, ",reduced_likelihood_function_value )
         return reduced_likelihood_function_value,par
 
     def _arg_max_reduced_likelihood_function(self):
@@ -769,17 +780,16 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.optimizer == 'fmin_cobyla':
 
             def minus_reduced_likelihood_function(log10t):
-                return - self.reduced_likelihood_function(
-                    theta=10. ** log10t)[0]
+                print("log10t is",log10t)
+                return - self.reduced_likelihood_function(theta=10. ** log10t)[0]
 
             constraints = []
             for i in range(self.theta0.size):
-                constraints.append(lambda log10t:
-                                   log10t[i] - np.log10(self.thetaL[i]))
-                constraints.append(lambda log10t:
-                                   np.log10(self.thetaU[i]) - log10t[i])
+                constraints.append(lambda log10t: log10t[i] - np.log10(self.thetaL[i]))
+                constraints.append(lambda log10t: np.log10(self.thetaU[i]) - log10t[i])
             for k in range(self.random_start):
-
+                print("random nr",k)
+                
                 if k == 0:
                     # Use specified starting point as first guess
                     theta0 = self.theta0
@@ -794,6 +804,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
                 # Run Cobyla, omdat cobyla alleen kan minimalizeren, moeten we minus de red likelihood als objective nemen
                 try:
+                    print("poginG1")
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
                                              np.log10(theta0), constraints,
