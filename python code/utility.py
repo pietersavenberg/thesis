@@ -8,6 +8,7 @@ delta = 2. #risk aversion
 sigma = np.array([[1,2,3,3],[4,5,6,6],[7,8,9,9],[10,11,12,13]]) #covariance matrix of the assets, transformed with Black Lit
 
 def objective(w):
+    print(w)
     return -np.dot(w,r)+0.5*delta*np.dot(np.dot(w,sigma),w)
   
     
@@ -18,7 +19,11 @@ def con1(w):
 def con2(w):
     return sum(w)-1  
     
-#constr 3 to 5: every w should be < 1    
+#constr 3 to 5: every w should be < 1  
+
+constraints = []
+for i in range(init.size):
+    constraints.append(lambda w:1-w[i] )
 def con3(w):
     return 1-w[0]
    

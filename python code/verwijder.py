@@ -410,16 +410,16 @@ sigmaf=theta[(2*n_features+1)]
 
 multiplyd,ij = l1_multiply(X)
 crossd,ij = l1_cross_distances(X)
-
+print multiplyd
 
 cross = manhattan_distances(X,x)
 multi = manhattan_multiply(X,x)
-print multi.shape
-print cross.shape
+#print multi.shape
+#print cross.shape
 
-ns = w0+ np.sum( (v0.reshape(1, n_features))**2 * multi, axis=1) + sigmaf*np.exp(-0.5*np.sum( (l0.reshape(1, n_features))*2 * cross**2, axis=1))#15 combinaties van datapunten, de features worden gebundeld per waarde
+ns = w0+ np.sum( (v0.reshape(1, n_features))**2 * multiplyd, axis=1) + sigmaf*np.exp(-0.5*np.sum( (l0.reshape(1, n_features))*2 * crossd**2, axis=1))#15 combinaties van datapunten, de features worden gebundeld per waarde
 
-#print ns
+print ns
 x = array2d(x)
 print ns.shape
 

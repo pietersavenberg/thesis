@@ -5,7 +5,7 @@ from sklearn.gaussian_process import GaussianProcess
 np.random.seed(1)
 def f(x):
     """The function to predict."""
-    return x * np.sin(x)
+    return np.sin(x)
 
 #----------------------------------------------------------------------
 #  First the noiseless case
@@ -15,13 +15,12 @@ X = np.atleast_2d([1., 3., 5., 6., 7., 8.]).T
 y = f(X).ravel()
 
 # Mesh the input space for evaluations of the real function, the prediction and its MSE
-x = np.atleast_2d(np.linspace(0, 10, 1000)).T
+x = np.atleast_2d(np.linspace(0, 3.14, 1000)).T
 
 
 # Instanciate a Gaussian Process model
 #,thetaL = np.array([1e-4,1e-4,1e-4,1e-4]),thetaU = np.array([1,1,1,1])
-gp = GaussianProcess(corr='non_stationary',theta0 = np.array([0.5,0.5,0.5,0.5]),thetaL = np.array([1e-1,1e-1,1e-1,1e-1]),
-thetaU = np.array([2,2,2,2]),random_start=2)
+gp = GaussianProcess(corr='non_stationary',theta0 = np.array([0.5,0.5,0.5,0.5]),thetaL = np.array([0.1,1e-1,1e-1,1e-1]),thetaU = np.array([2,2,2,1]),random_start=2)
 #gp = GaussianProcess(corr='squared_exponential',theta0 = np.array([1e-1]),thetaL = np.array([1e-4]),thetaU = np.array([1]),random_start=10)
 
 '''class sklearn.gaussian_process.GaussianProcess(regr='constant', corr='squared_exponential', 
@@ -35,7 +34,7 @@ gp.fit(X, y)
 
 # Make the prediction on the meshed x-axis (ask for MSE as well)
 y= gp.predict(x)
-#print y
+print y
 #sigma = np.sqrt(MSE)
 
 
