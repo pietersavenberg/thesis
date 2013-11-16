@@ -2,7 +2,7 @@ import numpy as np
 from xlrd import open_workbook
 asset = open_workbook('asset15feb.xlsx')
 sheet = asset.sheet_by_index(0)
-
+'''
 y = np.zeros(1057)
 for j in range(2,62,4):
     a = []
@@ -52,3 +52,29 @@ print x.shape
 
 np.save('y', y)
 np.save('x', x)
+'''
+
+
+det = open_workbook('keyind.xlsx')
+denmark = det.sheet_by_index(1)
+
+a = []
+for i in range(2,85):
+    a.append(denmark.cell(i,53).value) 
+    
+b = np.zeros(83)
+for j in range(1,20):
+    lala = []
+    for i in range(2,85):
+        lala.append(denmark.cell(i,j).value) 
+    b = np.vstack((b,np.array(lala)))
+b = b[1:] # remove zeros first row
+  
+    
+#b verder aanvullen met kwartale det van de andere landen
+
+#c of iets dergelijks aanmaken dat hetzelfde doet als b maar dan voor maandelijks  
+np.save('a',np.asarray(a))
+np.save('b',np.asarray(b))
+
+
