@@ -660,16 +660,14 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         R = np.eye(n_samples) * (1. + self.nugget)
         R[ij[:, 0], ij[:, 1]] = r
         R[ij[:, 1], ij[:, 0]] = r
-        #if self.corr == 'non_stationary':
-         #   print("deze shit moet uitgevoerd worden")
         for i in range(n_samples):
             som = 0.
             for j in range(n_features):
                 som += self.X[i,j]**2 / (theta[1+j]**2)
             R[i,i] += theta[0] + som +theta[2*n_features +1] - 1
         
-        print(R)
-        print("eigenwaarden,",linalg.eig(R)[0])
+        #print(R)
+        #print("eigenwaarden,",linalg.eig(R)[0])
         '''
         loglik = -0.5*(np.dot(np.dot(((self.y).T),linalg.inv(K)),self.y))- 0.5*np.log(linalg.det(K))-0.5*n_samples*np.log(6.18)
         print(K)
@@ -780,16 +778,14 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.optimizer == 'fmin_cobyla':
 
             def minus_reduced_likelihood_function(log10t):
-                print("log10t is",log10t)
+                print("parameters theta zijn, ",10. **log10t)
                 return - self.reduced_likelihood_function(theta=10. ** log10t)[0]
 
             constraints = []
             for i in range(self.theta0.size):
                 constraints.append(lambda log10t: log10t[i] - np.log10(self.thetaL[i]))
                 constraints.append(lambda log10t: np.log10(self.thetaU[i]) - log10t[i])
-            for k in range(self.random_start):
-                print("random nr",k)
-                
+            for k in range(self.random_start):                
                 if k == 0:
                     # Use specified starting point as first guess
                     theta0 = self.theta0
@@ -804,7 +800,6 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
 
                 # Run Cobyla, omdat cobyla alleen kan minimalizeren, moeten we minus de red likelihood als objective nemen
                 try:
-                    print("poginG1")
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
                                              np.log10(theta0), constraints,
