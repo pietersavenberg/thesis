@@ -395,7 +395,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
                 
-                
+        print("geoptimaliseerde parameters theta zijn",self.theta_)     
             
         self.beta = par['beta']
         self.gamma = par['gamma']
@@ -657,7 +657,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         # Set up R: dit is de Gram matrix K
         #print("theta berekend is",theta)
         r = self.corr(theta, D,multiplyD)
-        R = np.eye(n_samples) * (1. + self.nugget)
+        R = np.eye(n_samples) * (1. + theta[2*n_features + 2])
         R[ij[:, 0], ij[:, 1]] = r
         R[ij[:, 1], ij[:, 0]] = r
         for i in range(n_samples):
@@ -778,7 +778,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.optimizer == 'fmin_cobyla':
 
             def minus_reduced_likelihood_function(log10t):
-                print("parameters theta zijn, ",10. **log10t)
+                #print("parameters theta zijn, ",10. **log10t)
                 return - self.reduced_likelihood_function(theta=10. ** log10t)[0]
 
             constraints = []

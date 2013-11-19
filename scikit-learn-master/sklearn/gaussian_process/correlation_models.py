@@ -64,8 +64,8 @@ def non_stationary(theta,crossd,multiplyd):
     else:
         n_features = 1
 
-    if theta.size != (2*n_features+2):
-        raise ValueError("Length of theta must be 1 or %s" % (2*n_features+2))
+    if theta.size != (2*n_features+3):
+        raise ValueError("Length of theta must be 1 or %s" % (2*n_features+3))
     else:
         w0=theta[0]
         v0=theta[1:(n_features+1)]
