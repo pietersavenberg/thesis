@@ -10,7 +10,7 @@ def rchange(arr):
     return change
     
     
-y = np.load('y.npy')
+yolo = np.load('y.npy')
 tijdquart = np.load('a.npy') #tijdsas voor kwartaal data: - 92 0 enz.
 tijdmaand = np.load('b.npy') #tijdsas voor maandelijkse data: - 31 0 28 enz.
 qdata = np.load('q.npy') #variable y-as per determinant voor kwartaal data
@@ -65,15 +65,15 @@ for j in range(5299,7399,7):
     x = x.T  
     
     X = x[:voorspellingsdag/7] #alles behalve de laatste waarde (= de waarde van de det op de voorspellingsdag) wordt gebruikt voor training
-    y = y[:voorspellingsdag/7]
-    
+    y = yolo[:voorspellingsdag/7]
+    X = np.hstack((X,X))
     
     n_features = X.shape[1]
-    theta0 = np.ones(2*n_features+2)
+    theta0 = np.ones(2*n_features+3)
     thetaL = theta0 * 1e-1
     thetaU = theta0 *2
     gp = GaussianProcess(corr='non_stationary',theta0 =theta0,thetaL=thetaL ,thetaU=thetaU)
-    
+    print X.shape, y.shape
 
     
     gp.fit(X, y)
