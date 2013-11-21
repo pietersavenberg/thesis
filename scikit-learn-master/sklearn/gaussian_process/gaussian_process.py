@@ -395,7 +395,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
                 
-        print("geoptimaliseerde parameters theta zijn",self.theta_)     
+        #print("geoptimaliseerde parameters theta zijn",self.theta_)     
             
         self.beta = par['beta']
         self.gamma = par['gamma']
