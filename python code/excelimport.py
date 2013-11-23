@@ -1,50 +1,5 @@
 import numpy as np
 from xlrd import open_workbook
-#import Quandl
-
-
-"""
-det = open_workbook('keyind.xlsx')
-belgium = det.sheet_by_index(0)
-
-
-x = np.zeros(1057)
-for j in range(39,101):
-    a = []
-    for i in range(6,1063):
-        a.append(belgium.cell(i,j).value) #cell(1,0) = tweede rij, eerste kolom
-        
-    x = np.vstack((x,np.array(a)))
-
-
-     
-               
-      
-denmark = det.sheet_by_index(1)
-  
-for j in range(56,142):
-    a = []
-    for i in range(3,1060):
-        a.append(denmark.cell(i,j).value) #cell(1,0) = tweede rij, eerste kolom
-        
-    x = np.vstack((x,np.array(a)))
-     
-        
-            
-            
-x = x[1:]  #remove the zeros (first row)
-    
-x = x.T #transpose
-
-print x.shape
-#print x[0]
-
-
-
-np.save('x', x)
-
-"""
-
 
 asset = open_workbook('asset15feb.xlsx')
 sheet = asset.sheet_by_index(0)
@@ -73,7 +28,7 @@ for j in range(2,62,4):
       
 yalsdet = yalsdet[1:]  #remove the zeros (first row)
     
-#yalsdet = yalsdet.T #transpose
+yalsdet = yalsdet.T #transpose
 
 
 det = open_workbook('keyind.xlsx')
