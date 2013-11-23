@@ -17,8 +17,21 @@ def rchange(arr):
         else:
             change[i] = 0
     return change
+
+def NMSE(yvalid,ypred):
+    nmse = 0
+    for i in range(yvalid.shape[1]):
+        nmse += mean_squared_error(yvalid[:,i],ypred[:,i]) /(np.std(yvalid[:,i])**2)
+    return nmse
     
-    
+def hitrate(yvalid,ypred):
+    hitrate = 0.
+    for i in range(yvalid.shape[0]):
+        for j in range(yvalid.shape[1]):
+            if yvalid[i,j]*ypred[i,j] > 0:
+                hitrate += 1.
+    return (hitrate/(yvalid.shape[0]*yvalid.shape[1]))
+                
 det = 30 #aantal determinanten die we overhouden (computatie sneller)
 
 y = np.load('y.npy')
@@ -81,13 +94,11 @@ thetaU = theta0*upper
 n_features = Xtrain.shape[1]
 
 #plot lijsten aanmaken:
-xaxis,yaxis,zaxis= [],[],[]
-for i in range(50):
+xaxis,yaxis,zaxis,hit= [],[],[],[]
+for i in range(5):
     log10theta0 = np.log10(thetaL) + np.random.rand(theta0.size).reshape(theta0.shape)* np.log10(thetaU / thetaL)
     theta0 = 10. ** log10theta0
-    print theta0
     theta0voorgp = np.zeros(2*n_features+3)
-    
     
     #theta0voorgp[0] = theta0[0] #w0
     theta0voorgp[0] = 1#w0
@@ -111,11 +122,12 @@ for i in range(50):
     
     #use sklearn score function voor ypred vs. yvalid
     
-    z= mean_squared_error(yvalid, ypred)  
+    z= NMSE(yvalid, ypred)  
     #info voor plot
     xaxis.append(theta0[1]) #sigman, de andere drie zijn 1
     yaxis.append(theta0[2]) #sigmaf
     zaxis.append(z)
+    hit.append(hitrate(yvalid,ypred))
 
 
 cm = plt.cm.get_cmap('RdYlBu')
@@ -129,6 +141,7 @@ plt.ylabel('l_0')
 plt.colorbar(sc)
 plt.show()
 
+print hit
 
 
 '''
