@@ -74,12 +74,15 @@ for j in range(5299,5306,7):
     #X = np.hstack((X,X))
     #X = X[:,:1]
     n_features = X.shape[1]
+    n_features = 30
     theta0 = np.ones(2*n_features+3)
-    thetaL = theta0 * 1e-1
-    thetaU = theta0 *2
+    theta0 = theta0*1e1 #belangrijk dat theta0 tussen de grenzen ligt van L en U
+    thetaL = theta0 * 1e0
+    thetaU = theta0 *1e10
     gp = GaussianProcess(corr='non_stationary',theta0 =theta0,thetaL=thetaL ,thetaU=thetaU)
     print X.shape, y.shape
-
+    X = X[:,:30]
+    y = y[:,:30]
     
     gp.fit(X, y)
     '''

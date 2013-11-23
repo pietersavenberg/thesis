@@ -395,7 +395,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
                 
-        #print("geoptimaliseerde parameters theta zijn",self.theta_)     
+        print("geoptimaliseerde parameters theta zijn",self.theta_)     
             
         self.beta = par['beta']
         self.gamma = par['gamma']
@@ -778,7 +778,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.optimizer == 'fmin_cobyla':
 
             def minus_reduced_likelihood_function(log10t):
-                #print("parameters theta zijn, ",10. **log10t)
+                print("parameters theta zijn, ",10. **log10t)
                 return - self.reduced_likelihood_function(theta=10. ** log10t)[0]
 
             constraints = []
@@ -797,13 +797,13 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                         * np.log10(self.thetaU / self.thetaL)
                     theta0 = 10. ** log10theta0
                 
-
+                
                 # Run Cobyla, omdat cobyla alleen kan minimalizeren, moeten we minus de red likelihood als objective nemen
                 try:
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
                                              np.log10(theta0), constraints,
-                                             iprint=0)
+                                             iprint=0,maxfun=100)
                 except ValueError as ve:
                     print("Optimization failed. Try increasing the ``nugget``")
                     raise ve
@@ -827,10 +827,13 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                     if (20 * k) / self.random_start > percent_completed:
                         percent_completed = (20 * k) / self.random_start
                         print("%s completed" % (5 * percent_completed))
-
+           
+            
             optimal_rlf_value = best_optimal_rlf_value
             optimal_par = best_optimal_par
             optimal_theta = best_optimal_theta
+            
+        
 
         elif self.optimizer == 'Welch':
 
