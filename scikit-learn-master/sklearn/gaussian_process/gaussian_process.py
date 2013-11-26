@@ -778,7 +778,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.optimizer == 'fmin_cobyla':
 
             def minus_reduced_likelihood_function(log10t):
-                print("parameters theta zijn, ",10. **log10t)
+                #print("parameters theta zijn, ",10. **log10t)
                 return - self.reduced_likelihood_function(theta=10. ** log10t)[0]
 
             constraints = []
@@ -803,7 +803,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
                                              np.log10(theta0), constraints,
-                                             iprint=0,maxfun=100)
+                                             iprint=0)
                 except ValueError as ve:
                     print("Optimization failed. Try increasing the ``nugget``")
                     raise ve
