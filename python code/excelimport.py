@@ -258,60 +258,28 @@ for j in range(29,60):
     for i in range(5,238):
         lala.append(uk.cell(i,j).value) 
     m = np.vstack((m,np.array(lala)))          
-                                                                                                                                                                                                                                                                             
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 kwartaaldata = q[1:] # remove zeros first row
 maandata = m[1:]
   
-#b verder aanvullen met kwartale det van de andere landen
+com = open_workbook('commodities.xlsx')
+sheet = com.sheet_by_index(0)
 
-#c of iets dergelijks aanmaken dat hetzelfde doet als b maar dan voor maandelijks  
+det = np.zeros(1006)
+for j in range(1,43):
+    lala = []
+    for i in range(2,1008):
+        lala.append((sheet.cell(i,j).value)) 
+    det = np.vstack((det,np.array(lala)))
+det = det[1:]
+
+
 np.save('a',np.asarray(tijdquart)) #tijdsas voor kwartaal data
 np.save('b',np.asarray(tijdmaan))
 
 np.save('q',kwartaaldata)
 np.save('m',maandata)
+np.save('det',det)
 
 np.save('y', y)
 np.save('yalsdet', yalsdet)
-
-
-
-#print maandata.shape
-#print kwartaaldata.shape
-
-
-
-'''
-#----------------------------------------------------------------------------
-
-
-freq = "weekly"
-st = "15/02/1993"
-en = "20/05/2013"
-#Europe Brent oil spot price
-oil = np.array(Quandl.get("DOE/RBRTE",collapse=freq,trim_start = st, trim_end= en,transformation= "rdiff")["Value"])
-
-#copper price
-copper = np.array(Quandl.get("WORLDBANK/WLD_COPPER",collapse=freq,trim_start = st, trim_end= en,transformation= "rdiff")["Value"])
-
-#gold price
-gold = np.array(Quandl.get("BUNDESBANK/BBK01_WT5511",collapse=freq,trim_start = st, trim_end= en,transformation= "rdiff")["Value"])
-
-#energy index
-energy = np.array(Quandl.get("WORLDBANK/WLD_IENERGY",collapse=freq,trim_start = st, trim_end= en,transformation= "rdiff")["Value"])
-
-#metals and minerals index
-metals = np.array(Quandl.get("WORLDBANK/WLD_IMETMIN",collapse=freq,trim_start = st, trim_end= en,transformation= "rdiff")["Value"])
-
-#treasury bill yields
-bill3mo = np.array(Quandl.get("USTREASURY/YIELD",collapse=freq,trim_start = st, trim_end= en)["3 Mo"])
-bill2y = np.array(Quandl.get("USTREASURY/YIELD",collapse=freq,trim_start = st, trim_end= en)["2 Yr"])
-bill10y = np.array(Quandl.get("USTREASURY/YIELD",collapse=freq,trim_start = st, trim_end= en)["10 Yr"])
-billdif = bill10y-bill2y
-
-
-print oil.shape, copper.shape, gold.shape, energy.shape, metals.shape, bill3mo.shape, bill2y.shape, bill10y.shape, billdif.shape
-'''
