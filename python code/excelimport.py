@@ -32,7 +32,7 @@ yalsdet = yalsdet.T #transpose
 
 
 det = open_workbook('keyind.xlsx')
-belgium = det.sheet_by_index(0)
+belgium = det.sheet_by_index(0) #31 determinanten
 
 q = np.zeros(79)
 for j in range(1,12):
@@ -49,7 +49,7 @@ for j in range(15,35):
     m = np.vstack((m,np.array(lala)))
     
     
-denmark = det.sheet_by_index(1)
+denmark = det.sheet_by_index(1) #46 determinanten
 
 tijdquart = []
 for i in range(2,81):
@@ -280,6 +280,10 @@ np.save('b',np.asarray(tijdmaan))
 np.save('q',kwartaaldata)
 np.save('m',maandata)
 np.save('det',det)
+
+print kwartaaldata.shape
+print maandata.shape
+print det.shape
 
 np.save('y', y)
 np.save('yalsdet', yalsdet)
