@@ -376,7 +376,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         if self.thetaL is not None and self.thetaU is not None:
             # Maximum Likelihood Estimation of the parameters
             if self.verbose:
-                print("Performing Maximum Likelihood Estimation of the "
+                ("Performing Maximum Likelihood Estimation of the "
                       "autocorrelation parameters...")
             self.theta_, self.reduced_likelihood_function_value_, par = \
                 self._arg_max_reduced_likelihood_function()
@@ -395,7 +395,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
                 
-        print("geoptimaliseerde parameters theta zijn",self.theta_)     
+        #print("geoptimaliseerde parameters theta zijn",self.theta_)     
             
         self.beta = par['beta']
         self.gamma = par['gamma']
