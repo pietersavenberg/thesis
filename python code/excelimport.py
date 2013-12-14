@@ -32,7 +32,7 @@ yalsdet = yalsdet.T #transpose
 
 
 det = open_workbook('keyind.xlsx')
-belgium = det.sheet_by_index(0) #31 determinanten
+belgium = det.sheet_by_index(0) #31 determinanten: 11q 20m
 
 q = np.zeros(79)
 for j in range(1,12):
@@ -49,7 +49,7 @@ for j in range(15,35):
     m = np.vstack((m,np.array(lala)))
     
     
-denmark = det.sheet_by_index(1) #46 determinanten
+denmark = det.sheet_by_index(1) #46 determinanten: 19q, 27m
 
 tijdquart = []
 for i in range(2,81):
@@ -74,7 +74,7 @@ for j in range(23,50):
     m = np.vstack((m,np.array(lala)))   
     
     
-finland = det.sheet_by_index(2)
+finland = det.sheet_by_index(2) #43 det: 13q, 30m
 
 for j in range(1,14):
     lala = []
