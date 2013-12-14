@@ -41,5 +41,18 @@ a = optimize.fmin_cobyla(objective,init,[con1,con2,con3,con4,con5,con6],rhoend=1
 
 print a
 
+def utility(init_w, delta, blacklit_r, blacklit_sigma):
+    def objective(w):
+    
+        return -np.dot(w,r)+0.5*delta*np.dot(np.dot(w,sigma),w)
+    
+    constraints = []
+    for i in range(np.array(init_w).size):
+        
+        constraints.append(lambda w: 1 - w[i] )
+        
+    constraints.append(lambda w: 3-sum(abs(w)))            
+    constraints.append(lambda w: sum(w)-1)        
+    constraints.append(lambda w: -sum(w)+1)
 
-
+    return optimize.fmin_cobyla(objective,init_w,constraints,rhoend=1e-7,maxfun=1000)
