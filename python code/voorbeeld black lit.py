@@ -24,14 +24,14 @@ def blacklitterman(delta, weq, sigma, tau, P, Q, Omega):
   # Reverse optimize and back out the equilibrium returns
   # This is formula (12) page 6.
   pi = weq.dot(sigma * delta)
-  print(pi)
+  #print(pi)
   # We use tau * sigma many places so just compute it once
   ts = tau * sigma
   # Compute posterior estimate of the mean
   # This is a simplified version of formula (8) on page 4.
   middle = linalg.inv(np.dot(np.dot(P,ts),P.T) + Omega)
-  print(middle)
-  print(Q-np.expand_dims(np.dot(P,pi.T),axis=1))
+  #print(middle)
+  #print(Q-np.expand_dims(np.dot(P,pi.T),axis=1))
   er = np.expand_dims(pi,axis=0).T + np.dot(np.dot(np.dot(ts,P.T),middle),(Q - np.expand_dims(np.dot(P,pi.T),axis=1)))
   # Compute posterior estimate of the uncertainty in the mean
   # This is a simplified and combined version of formulas (9) and (15)
@@ -130,8 +130,9 @@ Q1 = np.array([0.05])
 P=np.array([P1])
 Q=np.array([Q1]);
 Omega = np.dot(np.dot(P,tauV),P.T) * np.eye(Q.shape[0])
+print Omega
 res = blacklitterman(delta, weq, V, tau, P, Q, Omega)
-display('View 1',assets,res)
+#display('View 1',assets,res)
 
 # Define view 2
 # Canadian Equities will outperform US equities by 3%
@@ -143,5 +144,5 @@ P=np.array([P1,P2])
 Q=np.array([Q1,Q2]);
 Omega = np.dot(np.dot(P,tauV),P.T) * np.eye(Q.shape[0])
 res = blacklitterman(delta, weq, V, tau, P, Q, Omega)
-display('View 1 + 2', assets, res)
+#display('View 1 + 2', assets, res)
 
