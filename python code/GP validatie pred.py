@@ -44,7 +44,7 @@ def hitrate(yvalid,ypred):
 def score(yvalid,ypred):
     return np.sqrt(hitrate(yvalid,ypred)/NMSE(yvalid,ypred))
                 
-det = 99 #aantal determinanten die we overhouden (computatie sneller), 15 van yalsdet + 42*2 van DSdet + 2*11 qbelgium + 2*19 qdenmark + 2*13 qfinland + paar van qfrance
+det = 5 #aantal determinanten die we overhouden (computatie sneller), 15 van yalsdet + 42*2 van DSdet + 2*11 qbelgium + 2*19 qdenmark + 2*13 qfinland + paar van qfrance
 
 y = np.load('y.npy')
 yalsdet = np.load('yalsdet.npy')
@@ -133,9 +133,9 @@ for i in range(n_features):
               
 gp = GaussianProcess(corr='non_stationary',theta0 =theta0voorgp,thetaL=thetaLvoorgp ,thetaU=thetaUvoorgp)
 gp.fit(Xtrain, ytrain)
-ypred  = gp.predict(Xvalid)
+ypred, yolo  = gp.predict(Xvalid, eval_MSE = True)
 
-
+print yolo
 ax = range(1,129,1)
 
 for i in range(yvalid.shape[1]):
