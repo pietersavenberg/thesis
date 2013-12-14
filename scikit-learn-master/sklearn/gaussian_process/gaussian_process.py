@@ -395,7 +395,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
             if np.isinf(self.reduced_likelihood_function_value_):
                 raise Exception("Bad point. Try increasing theta0.")
                 
-        #print("geoptimaliseerde parameters theta zijn",self.theta_)     
+        print("geoptimaliseerde parameters theta zijn",self.theta_)     
             
         self.beta = par['beta']
         self.gamma = par['gamma']
@@ -541,16 +541,17 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                 MSE = np.dot(self.sigma2.reshape(n_targets, 1),
                              (1. - (rt ** 2.).sum(axis=0)
                               + (u ** 2.).sum(axis=0))[np.newaxis, :])
-                MSE = np.sqrt((MSE ** 2.).sum(axis=0) / n_targets)
+                #MSE = np.sqrt((MSE ** 2.).sum(axis=0) / n_targets)
+                MSE = np.sqrt((MSE ** 2.))
 
                 # Mean Squared Error might be slightly negative depending on
                 # machine precision: force to zero!
-                MSE[MSE < 0.] = 0.
+                #MSE[MSE < 0.] = 0.
 
                 if self.y_ndim_ == 1:
                     MSE = MSE.ravel()
                 
-                return y, MSE,self.beta,self.gamma
+                return y, MSE,self.theta_
 
             else:
 
@@ -571,7 +572,6 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                     y[batch_from:batch_to], MSE[batch_from:batch_to] = \
                         self.predict(X[batch_from:batch_to],
                                      eval_MSE=eval_MSE, batch_size=None)
-
                 return y, MSE
 
             else:
@@ -657,15 +657,19 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
         # Set up R: dit is de Gram matrix K
         #print("theta berekend is",theta)
         r = self.corr(theta, D,multiplyD)
-        R = np.eye(n_samples) * (1. + theta[2*n_features + 2])
-        R[ij[:, 0], ij[:, 1]] = r
-        R[ij[:, 1], ij[:, 0]] = r
-        for i in range(n_samples):
-            som = 0.
-            for j in range(n_features):
-                som += self.X[i,j]**2 / (theta[1+j]**2)
-            R[i,i] += theta[0] + som +theta[2*n_features +1] - 1
-        
+        try:
+            R = np.eye(n_samples) * (1. + theta[2*n_features + 2])
+            R[ij[:, 0], ij[:, 1]] = r
+            R[ij[:, 1], ij[:, 0]] = r
+            for i in range(n_samples):
+                som = 0.
+                for j in range(n_features):
+                    som += self.X[i,j]**2 / (theta[1+j]**2)
+                R[i,i] += theta[0] + som +theta[2*n_features +1] - 1
+        except:
+            R = np.eye(n_samples) * (1. + self.nugget)
+            R[ij[:, 0], ij[:, 1]] = r
+            R[ij[:, 1], ij[:, 0]] = r
         #print(R)
         #print("eigenwaarden,",linalg.eig(R)[0])
         '''
@@ -803,7 +807,7 @@ class GaussianProcess(BaseEstimator, RegressorMixin):
                     log10_optimal_theta = \
                         optimize.fmin_cobyla(minus_reduced_likelihood_function,
                                              np.log10(theta0), constraints,
-                                             iprint=0)
+                                             rhobeg=1.0, rhoend=0.01, iprint=0, maxfun=20000, disp=None)
                 except ValueError as ve:
                     print("Optimization failed. Try increasing the ``nugget``")
                     raise ve
